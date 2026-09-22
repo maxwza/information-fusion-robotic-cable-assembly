@@ -1,0 +1,43 @@
+MODEL:
+  META_ARCHITECTURE: "GeneralizedRCNN"
+  WEIGHT: "catalog://ImageNetPretrained/MSRA/R-50"  # 预训练权重
+  RPN_ONLY: True
+  FCOS_ON: True
+  BACKBONE:
+    CONV_BODY: "R-50-FPN-RETINANET"
+  RESNETS:
+    BACKBONE_OUT_CHANNELS: 256
+  FCOS:
+    NUM_CLASSES: 12  # 你的线缆类别数量
+
+DATASETS:
+  TRAIN: ("cable_train_coco_style",)
+  TEST: ("cable_val_coco_style",)
+
+INPUT:
+  MIN_SIZE_TRAIN: (800,)
+  MAX_SIZE_TRAIN: 1333
+  MIN_SIZE_TEST: 800
+  MAX_SIZE_TEST: 1333
+
+DATALOADER:
+  SIZE_DIVISIBILITY: 32
+  NUM_WORKERS: 2  # 数据加载线程数，笔记本设置小一些
+
+SOLVER:
+  BASE_LR: 0.001       # 单GPU建议小一点
+  WEIGHT_DECAY: 0.0001
+  STEPS: (12000,)      # 减少中途学习率衰减
+  MAX_ITER: 20000       # 单GPU总迭代数减少
+  IMS_PER_BATCH: 2      # 单GPU批量大小，根据显存调整
+  WARMUP_METHOD: "linear"
+
+TEST:
+  BBOX_AUG:
+    ENABLED: False
+    H_FLIP: True
+    SCALES: (400, 500, 600, 700, 900, 1000, 1100, 1200)
+    MAX_SIZE: 2000
+    SCALE_H_FLIP: True
+
+OUTPUT_DIR: "training_dir/fcos_cable"  # 模型保存路径
